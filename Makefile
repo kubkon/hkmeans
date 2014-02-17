@@ -1,13 +1,14 @@
-HC = ghc
+HC     = ghc
+FLAGS  = -O2 
 LIBSRC = KMeans.hs
 LIBOBJ = $(patsubst %.hs, %.o, $(LIBSRC))
 
 .PHONY: all
 all: $(LIBOBJ) 
-	$(HC) Main.hs
+	$(HC) Main.hs $(FLAGS)
 
 $(LIBOBJ): $(LIBSRC)
-	$(HC) $^
+	$(HC) $^ $(FLAGS)
 
 .PHONY: clean
 clean:

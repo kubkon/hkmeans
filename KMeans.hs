@@ -8,11 +8,12 @@ import qualified Numeric.Container as NC
 import System.Random as R
 
 fit :: Int
+    -> Int
     -> Double
     -> [NC.Vector Double]
     -> IO [NC.Vector Double]
-fit k tol points = liftM (update k tol points)
-                 $ initialise k points
+fit k maxIter tol points = liftM (loop k maxIter tol points)
+                         $ initialise k points
 
 cluster :: [NC.Vector Double]
         -> [NC.Vector Double]
@@ -30,7 +31,7 @@ initialise k points = do
 expectationStep :: [NC.Vector Double]
                 -> [NC.Vector Double]
                 -> [Int]
-expectationStep centroids points =
+expectationStep centroids points = 
     map (NC.minIndex . NC.fromList . distances) points
       where distances x = map (distortion euclideanDist x) centroids
 
@@ -61,14 +62,16 @@ meanVector vs = NC.scale len $ sum' vs
           sum' = foldr NC.add (NC.constant 0 n)
           n    = NC.dim $ head vs
 
-update :: Int
-       -> Double
-       -> [NC.Vector Double]
-       -> [NC.Vector Double]
-       -> [NC.Vector Double]
-update k tol points centroids
+loop :: Int
+     -> Int
+     -> Double
+     -> [NC.Vector Double]
+     -> [NC.Vector Double]
+     -> [NC.Vector Double]
+loop k count tol points centroids
   | all (<= tol) distances = centroids
-  | otherwise              = update k tol points centroids'
+  | count == 0             = error "Algorithm failed to converge"
+  | otherwise              = loop k (count-1) tol points centroids'
     where distances  = zipWith (distortion euclideanDist) centroids centroids'
           partition  = expectationStep centroids points
           centroids' = maximisationStep k partition points
