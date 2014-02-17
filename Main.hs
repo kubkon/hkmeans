@@ -3,7 +3,7 @@ module Main where
 import qualified Numeric.Container as NC
 import System.IO (readFile)
 
-import KMeans (fit, cluster)
+import KMeans (fit)
 
 parseFromFile :: String -> [[Double]]
 parseFromFile = map (map read . words) . lines
@@ -16,6 +16,6 @@ main = do
         k      = 2
 
     centroids <- fit k 1e-6 points
-
-    print centroids
+       
+    putStrLn $ "Centroids: " ++ show centroids
 
